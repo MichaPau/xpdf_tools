@@ -1,4 +1,4 @@
-use crate::types::{self, XpdfInfoMap};
+use crate::{types::{self, XpdfInfoMap}, PdfErrorKind};
 
 use std::process::Command;
 use std::path::Path;
@@ -79,6 +79,7 @@ pub fn pdf_info(pdf_file: &Path, tools: &XpdfTools) -> Result<PdfInfo, PdfError>
                 PdfError { 
                     message: "pdf_info error".to_string(),
                     process_message: _e.to_string(),
+                    error_kind: PdfErrorKind::PdfInfoError
                 }
             )
         }

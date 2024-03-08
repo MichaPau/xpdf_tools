@@ -1,5 +1,7 @@
 use std::{path::Path, process::Command};
 
+use crate::PdfErrorKind;
+
 use super::{PdfError, XpdfTools};
 
 #[allow(dead_code)]
@@ -19,6 +21,7 @@ fn pdf_to_text(pdf_file: &str) -> Result<String, PdfError> {
                 PdfError { 
                     message: "pdf_to_text parse error".to_string(),
                     process_message: _e.to_string(),
+                    error_kind: PdfErrorKind::PdfToTextError
                 }
             )
         }
@@ -52,6 +55,7 @@ pub fn pdf_to_binary(pdf_file: &Path, tools: &XpdfTools) -> Result<Vec<u8>, PdfE
                     PdfError { 
                         message: "pdf_to_text parse error".to_string(),
                         process_message: String::from_utf8_lossy(&o.stderr).to_string(),
+                        error_kind: PdfErrorKind::PdfToTextErrorNoOutput,
                     })
             } else {
                 Ok(o.stdout.to_owned())
@@ -67,6 +71,7 @@ pub fn pdf_to_binary(pdf_file: &Path, tools: &XpdfTools) -> Result<Vec<u8>, PdfE
                 PdfError { 
                     message: "pdf_to_text parse error".to_string(),
                     process_message: _e.to_string(),
+                    error_kind: PdfErrorKind::PdfToTextError
                 }
             )
         }
