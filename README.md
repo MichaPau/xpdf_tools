@@ -26,7 +26,7 @@ use xpdf_tools::XpdfTools;
 
 ...
 
-let tools = XpdfTools::builder(PathBuf::from("path/to/the/tools/folder"))
+let tools = XpdfTools::builder(PathBuf::from("path/to/the/tools/folder")).unwrap()
         .extra_args(vec![XpdfArgs::RawDates, XpdfArgs::Metadata])
         .build();
     
