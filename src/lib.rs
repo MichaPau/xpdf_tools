@@ -27,6 +27,7 @@ pub struct PdfError {
     pub error_kind: PdfErrorKind,
 }
 
+#[allow(dead_code)]
 impl PdfError {
     fn kind(&self) -> PdfErrorKind {
         self.error_kind
@@ -151,4 +152,19 @@ fn test_tool_available() {
     assert_eq!(tools_result.pdf_check_tool("pdfinfo"), Ok(true));
     assert_eq!(tools_result.pdf_check_tool("pdftotext"), Ok(true));
     assert_eq!(tools_result.pdf_check_tool("pdftoWindmill").unwrap_err().kind(), PdfErrorKind::ToolNotAvailable);
+}
+
+#[test]
+fn test_arguments() {
+    let tools_result = XpdfTools::builder(PathBuf::from("./testData/binTester")).unwrap()
+        .extra_args(vec![XpdfArgs::RawDates, XpdfArgs::Metadata])
+        .build();
+    let result = tools_result.pdf_info(Path::new("./testData/pdfFile_01.pdf"));
+
+    assert!(result.as_ref().unwrap().info_map.get("Metadata").is_some());
+    //println!("{:?}", result.as_ref().unwrap().info_map);
+    
+
+    //assert!()
+    
 }

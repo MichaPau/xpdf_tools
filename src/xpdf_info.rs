@@ -5,7 +5,7 @@ use std::path::Path;
 
 use super::{PdfError, XpdfTools};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct PdfInfo {
     pub raw: String,
     pub info_map: XpdfInfoMap,
@@ -18,9 +18,9 @@ pub fn pdf_info(pdf_file: &Path, tools: &XpdfTools) -> Result<PdfInfo, PdfError>
 
     let mut args = vec![];
     if let Some(extra) = &tools.extra_args {
-        args.extend(extra.into_iter().map(|xpdfarg| xpdfarg.to_str()));
+        args.extend(extra.into_iter().filter(|xpdfarg| xpdfarg.is_valid_info_arg()).map(|xpdfarg| xpdfarg.to_osstr()));
     }
-    args.push(pdf_file.display().to_string());
+    args.push(pdf_file.into());
     
     let output = Command::new(cmd)
     .args(&args)

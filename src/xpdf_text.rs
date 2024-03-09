@@ -38,10 +38,10 @@ pub fn pdf_to_binary(pdf_file: &Path, tools: &XpdfTools) -> Result<Vec<u8>, PdfE
     if let Some(extra) = &tools.extra_args {
         //args.append(&mut extra.clone());
        
-        args.extend(extra.into_iter().map(|xpdfarg| xpdfarg.to_str()));
+        args.extend(extra.into_iter().filter(|xpdfarg| xpdfarg.is_valid_totext_arg()).map(|xpdfarg| xpdfarg.to_osstr()));
     }
-    args.push(pdf_file.display().to_string());
-    args.push("-".to_string());
+    args.push(pdf_file.into());
+    args.push("-".into());
     
     let output = Command::new(cmd)
     .args(&args)
