@@ -3,6 +3,7 @@ name = "xpdf_tools"
 version = "0.1.2"
 edition = "2021"
 
+exclude = ["/testData"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
