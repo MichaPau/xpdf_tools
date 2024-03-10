@@ -64,8 +64,15 @@ impl XpdfTools {
     }
     pub fn pdf_text(&self, pdf_file: &Path) -> Result<Vec<u8>, PdfError> {
        
-        match Self::pdf_check_tool(self, "pdfinfo") {
+        match Self::pdf_check_tool(self, "pdftotext") {
             Ok(_) =>  xpdf_text::pdf_to_binary(pdf_file, &self),
+            Err(e) => Err(e),
+        }
+    }
+    pub fn pdf_text_as_string(&self, pdf_file: &Path) -> Result<String, PdfError> {
+       
+        match Self::pdf_check_tool(self, "pdftotext") {
+            Ok(_) =>  xpdf_text::pdf_to_text(pdf_file, &self),
             Err(e) => Err(e),
         }
     }
@@ -121,6 +128,8 @@ impl XpdfToolsBuilder {
         }
     }
 
+    //Extra args for the XpdfTool process
+    //Invalid arguments are filtered out before applied
     pub fn extra_args(mut self, extra_args: Vec<XpdfArgs>) -> Self {
         self.extra_args = Some(extra_args);
         self
@@ -162,9 +171,17 @@ fn test_arguments() {
     let result = tools_result.pdf_info(Path::new("./testData/pdfFile_01.pdf"));
 
     assert!(result.as_ref().unwrap().info_map.get("Metadata").is_some());
-    //println!("{:?}", result.as_ref().unwrap().info_map);
     
+}
 
-    //assert!()
-    
+#[test]
+fn test_pdf_text() {
+    let tools_result = XpdfTools::builder(PathBuf::from("./testData/binTester")).unwrap()
+        .build();
+
+    let pdf_text = tools_result.pdf_text_as_string(Path::new("./testData/pdfFile_01.pdf"));
+    assert!(pdf_text.is_ok());
+    let text = pdf_text.unwrap();
+    //println!("{:?}", text);
+    assert!(text.starts_with("THE AUTHOR HIMSELF SAID"));
 }
