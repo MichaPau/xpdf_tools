@@ -3,7 +3,7 @@ use crate::{types::{self, XpdfInfoMap}, PdfErrorKind};
 use std::process::Command;
 use std::path::Path;
 
-use super::{PdfError, XpdfTools};
+use super::{PdfError, XpdfTools, args_parser};
 
 #[derive(Debug, PartialEq)]
 pub struct PdfInfo {
@@ -18,9 +18,9 @@ pub fn pdf_info(pdf_file: &Path, tools: &XpdfTools) -> Result<PdfInfo, PdfError>
 
     let mut args = vec![];
     if let Some(extra) = &tools.extra_args {
-        args.extend(extra.into_iter().filter(|xpdfarg| xpdfarg.is_valid_info_arg()).map(|xpdfarg| xpdfarg.to_osstr()));
+        args.extend(args_parser(&extra, "pdfinfo"));
     }
-    args.push(pdf_file.into());
+    args.push(String::from(pdf_file.to_str().unwrap()));
     
     let output = Command::new(cmd)
     .args(&args)

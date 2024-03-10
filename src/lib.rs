@@ -3,10 +3,10 @@ use core::fmt;
 use std::path::{Path, PathBuf};
 
 
+
 pub mod xpdf_info;
 pub mod xpdf_text;
 pub mod types;
-
 
 use xpdf_info::PdfInfo;
 
@@ -132,12 +132,33 @@ impl XpdfToolsBuilder {
     //Invalid arguments are filtered out before applied
     pub fn extra_args(mut self, extra_args: Vec<XpdfArgs>) -> Self {
         self.extra_args = Some(extra_args);
+        //self.extra_args = Some(Self::args_parser(extra_args).collect_vec());
         self
     }
 
     pub fn build(self) -> XpdfTools {
         XpdfTools { extra_args: self.extra_args, tools_folder: self.tools_folder, available_tools: self.available_tools}
     }
+
+    pub fn args_parser<'a>(args: &'a Vec<XpdfArgs>) -> Box<dyn Iterator<Item = String> + 'a> {
+        Box::new(
+            args.into_iter()
+            //.filter(|xpdfarg| xpdfarg.is_valid_totext_arg())
+            .map(|xpdfarg| xpdfarg.to_str())
+            .flat_map(|str| {
+                str.split(" ").map(|str| str.to_owned()).collect::<Vec<_>>()
+            })
+        )
+    }
+}
+
+pub fn args_parser<'a>(args: &'a Vec<XpdfArgs>, tool: &'a str) -> Box<dyn Iterator<Item = String> + 'a> {
+    Box::new(
+        args.into_iter()
+        .filter(|xpdfarg| xpdfarg.is_valid_for(tool))
+        .map(|xpdfarg| xpdfarg.to_str())
+        .flat_map(|str| str.split(" ").map(|str| str.to_owned()).collect::<Vec<_>>())
+    )
 }
 
 pub fn get_version() -> String {
@@ -176,12 +197,30 @@ fn test_arguments() {
 
 #[test]
 fn test_pdf_text() {
+    use std::io::{self, Write};
     let tools_result = XpdfTools::builder(PathBuf::from("./testData/binTester")).unwrap()
+        .extra_args(vec![XpdfArgs::Encoding("UTF-8".into())])
+        //.extra_args(vec![XpdfArgs::FirstPage(2)])
         .build();
 
-    let pdf_text = tools_result.pdf_text_as_string(Path::new("./testData/pdfFile_01.pdf"));
+    let pdf_text = tools_result.pdf_text(Path::new("./testData/sample_text.pdf"));
+    //let pdf_text = tools_result.pdf_text(Path::new("./testData/descartes_meditations.pdf"));
     assert!(pdf_text.is_ok());
     let text = pdf_text.unwrap();
     //println!("{:?}", text);
-    assert!(text.starts_with("THE AUTHOR HIMSELF SAID"));
+
+    io::stdout().write_all(&text).unwrap();
+    //assert!(text.starts_with("THE AUTHOR HIMSELF SAID"));
+}
+
+#[test]
+fn test_args_parser() {
+    let tools_result = XpdfTools::builder(PathBuf::from("./testData/binTester")).unwrap()
+    //.extra_args(vec![XpdfArgs::Encoding("UTF-8".into())])
+    .extra_args(vec![XpdfArgs::FirstPage(2), XpdfArgs::Metadata, XpdfArgs::Encoding("UTF-8".into()), XpdfArgs::RawDates])
+    .build();
+
+    let args = tools_result.extra_args.unwrap();
+    let args_strings:Vec<_> = XpdfToolsBuilder::args_parser(&args).collect();
+    println!("args_string: {:?}", args_strings);
 }

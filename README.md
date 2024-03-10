@@ -38,3 +38,8 @@ match tools.pdf_info("path/to/the/pdf/file") {
 }
 ```
 
+Non english languages may need
+```
+.extra_args(vec![XpdfArgs::Encoding("UTF-8".into())])
+```
+

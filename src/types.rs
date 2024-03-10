@@ -144,6 +144,9 @@ impl fmt::Display for XpdfArgs {
 //this is so verbose - find a better way
 impl XpdfArgs {
     
+    pub fn to_str(&self) -> String {
+        self.to_osstr().to_str().unwrap().to_owned()
+    }
     pub fn to_osstr(&self) -> OsString {
         match self {
             XpdfArgs::FirstPage(number) => format!("-f {}", number).into(),
@@ -181,6 +184,13 @@ impl XpdfArgs {
         }
     }
 
+    pub fn is_valid_for(&self, tool: &str) -> bool {
+        match tool {
+            "pdfinfo" => self.is_valid_info_arg(),
+            "pdftotext" => self.is_valid_totext_arg(),
+            _ => false,
+        }
+    }
     pub fn is_valid_info_arg(&self) -> bool {
         match self {
             XpdfArgs::FirstPage(_) | XpdfArgs::LastPage(_) | 
