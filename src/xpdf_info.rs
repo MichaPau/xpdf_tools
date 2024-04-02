@@ -77,7 +77,8 @@ pub fn pdf_info(pdf_file: &Path, tools: &XpdfTools) -> Result<PdfInfo, PdfError>
            
             Err(
                 PdfError { 
-                    message: "pdf_info error".to_string(),
+                    //message: "pdf_info error".to_string(),
+                    message: format!("pdf_info error: {:?}", pdf_file),
                     process_message: _e.to_string(),
                     error_kind: PdfErrorKind::PdfInfoError
                 }
